@@ -1,12 +1,18 @@
-import { attachShadow } from '../utils.js'
+import { attachShadow, registerElement } from '../utils.js'
 
 const style = /* @css */`
   :host {
-    --color: rebeccapurple;
+    font-family: monospace;
+    color: var(--c-scuro)
   }
 
   div {
-    color: var(--color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 70vh;
+    background: var(--c-chiaro);
   }
 `
 
@@ -17,9 +23,13 @@ export default class HeroBanner extends HTMLElement {
     attachShadow(this, /* @html */`
       <style>${style}</style>
 
-      <div>Hero Banner</div>
+      <div>
+        <h1>
+          Work in progress...
+        </h1>
+      </div>
     `)
   }
 }
 
-customElements.define('hero-banner', HeroBanner)
+registerElement(HeroBanner)

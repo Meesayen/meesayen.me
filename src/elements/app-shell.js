@@ -1,5 +1,6 @@
-import { attachShadow } from '../utils.js'
+import { attachShadow, registerElement } from '../utils.js'
 import './hero-banner.js'
+import './nav-header.js'
 
 const style = /* @css */`
   :host {
@@ -18,11 +19,11 @@ export default class AppShell extends HTMLElement {
     attachShadow(this, /* @html */`
       <style>${style}</style>
 
-      <div>App Shell</div>
+      <nav-header></nav-header>
 
       <hero-banner></hero-banner>
     `)
   }
 }
 
-customElements.define('app-shell', AppShell)
+registerElement(AppShell)

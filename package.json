@@ -1,7 +1,7 @@
 {
-  "name": "epiphany",
-  "version": "1.0.0",
-  "description": "I am having an epiphany",
+  "name": "meesayen.xyz",
+  "version": "1.0.0-wip",
+  "description": "",
   "main": "index.js",
   "scripts": {
     "dev": "nodemon -e js,html index.js",
@@ -10,6 +10,9 @@
   },
   "author": "Meesayen <gvg.fede@gmail.com>",
   "license": "MIT",
+  "engines": {
+    "node": "^7.9.0"
+  },
   "xo": {
     "extends": "paprika",
     "envs": ["node", "browser"],
