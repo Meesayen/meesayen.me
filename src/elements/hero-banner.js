@@ -1,34 +1,31 @@
-import { attachShadow, registerElement } from '../utils.js'
+import { registerElement } from '../utils.js'
+import stylist from '../stylist-mixin.js'
+import spy from '../spy-mixin.js'
+import marshall from '../marshall-mixin.js'
 
-const style = /* @css */`
-  :host {
-    font-family: monospace;
-    color: var(--c-scuro)
+export default class HeroBanner extends marshall(spy(stylist(HTMLElement))) {
+  static get observedAttributes() {
+    return [
+      'title'
+    ]
   }
 
-  div {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    height: 70vh;
-    background: var(--c-chiaro);
+  get style() {
+    return fetch('elements/hero-banner.css').then(r => r.text())
   }
-`
 
-export default class HeroBanner extends HTMLElement {
-  constructor() {
-    super()
-
-    attachShadow(this, /* @html */`
-      <style>${style}</style>
-
+  get template() {
+    return /* @html */`
       <div>
-        <h1>
-          Work in progress...
+        <h1 id="title">
+          ${this.title}
         </h1>
       </div>
-    `)
+    `
+  }
+
+  titleChanged(old, nue) {
+    this.$.title.textContent = nue
   }
 }
 

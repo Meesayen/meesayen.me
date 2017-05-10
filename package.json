@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "nodemon -e js,html index.js",
     "start": "node index.js",
-    "test": "xo"
+    "test": "xo",
+    "deploy": "now",
+    "post-deploy": "now alias `pbpaste` meesayen"
   },
   "author": "Meesayen <gvg.fede@gmail.com>",
   "license": "MIT",
@@ -19,7 +21,10 @@
     "rules": {
       "import/extensions": "off",
       "import/no-unassigned-import": "off"
-    }
+    },
+    "ignores": [
+      "src/hyperHtml.js"
+    ]
   },
   "dependencies": {
     "async-file": "^2.0.2",

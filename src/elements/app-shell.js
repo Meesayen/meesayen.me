@@ -21,7 +21,7 @@ export default class AppShell extends HTMLElement {
 
       <nav-header></nav-header>
 
-      <hero-banner></hero-banner>
+      <hero-banner title="Work in progress..."></hero-banner>
     `)
   }
 }

@@ -1,0 +1,64 @@
+:host {
+  display: flex;
+  flex-direction: row;
+  font-family: monospace;
+  max-width: 1024px;
+  margin: 0 auto;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.logo {
+  padding: 15px;
+  font-size: 2rem;
+  color: var(--c-scuro);
+}
+
+nav {
+  width: 100%;
+  padding: 15px;
+}
+
+ul,
+li {
+  @apply --reset-list;
+}
+
+ul {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+}
+
+li {
+  display: inline-block;
+  padding: 10px;
+  color: var(--c-scuro);
+  text-transform: capitalize;
+  font-size: .9rem;
+}
+
+a {
+  @apply --reset-link;
+  position: relative;
+}
+
+li a::after {
+  content: '';
+  width: 100%;
+  height: 2px;
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  background: var(--c-accent);
+  transform: rotateY(90deg);
+  transform-origin: left;
+  will-change: transform;
+  transition: transform 150ms ease-in-out;
+}
+
+li.selected a::after {
+  transform: rotateY(0);
+}

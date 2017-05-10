@@ -9,11 +9,12 @@ const router = new Router()
 
 const port = process.env.PORT || 3000
 
-if (process.env.NODE_ENV === 'production') {
-  app.use(serve(`${__dirname}/dist`))
-} else {
-  app.use(serve(`${__dirname}/src`))
-}
+// TODO: add a build pipeline to support more browsers
+// if (process.env.NODE_ENV === 'production') {
+//   app.use(serve(`${__dirname}/dist`))
+// } else {
+app.use(serve(`${__dirname}/src`))
+// }
 
 app.use(favicon(`${__dirname}/favicon.ico`))
 
