@@ -1,18 +1,20 @@
-import { attachShadow } from './utils.js'
+import { attachShadow } from '../utils.js'
 
 export default superclass => class extends superclass {
   constructor(...args) {
     super(...args)
-    this.root = attachShadow(this, /* @html */`
-      <style>
-         :host { opacity: 0; }
-         *, * + * { opacity: 0; }
-      </style>
-      ${this.template}
-    `)
+
+    this.root = attachShadow(this, this.template)
 
     ;(async () => {
-      this.root.querySelector('style').textContent = await this.style
+      let style = this.root.querySelector('style[unresolved]')
+      if (style === null) {
+        style = document.createElement('style')
+        this.root.appendChild(style)
+      } else {
+        style.removeAttribute('unresolved')
+      }
+      style.textContent = await this.style
     })()
   }
 

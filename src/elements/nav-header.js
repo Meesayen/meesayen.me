@@ -1,9 +1,10 @@
 import { registerElement } from '../utils.js'
-import styilist from '../stylist-mixin.js'
+import Styilist from '../vanilla/stylist-mixin.js'
 
-export default class NavHeader extends styilist(HTMLElement) {
+export default class NavHeader extends Styilist(HTMLElement) {
   constructor() {
     super()
+
     this.handleHashChange = this.handleHashChange.bind(this)
   }
 
@@ -13,6 +14,21 @@ export default class NavHeader extends styilist(HTMLElement) {
 
   get template() {
     return /* @html */`
+      <!--
+        NOTE: pre-style your component before the .css is fetched and injected with an [unresolved]
+        <style> tag. Useful to avoid FOUC situations.
+      -->
+      <style unresolved>
+        :host {
+          display: block;
+          height: 67px;
+          box-sizing: border-box;
+          background: var(--c-primary);
+        }
+
+        :host * { @apply --cloaked; }
+      </style>
+
       <div class="logo">
         <a href="#home">Meesayen's</a>
       </div>
@@ -40,20 +56,10 @@ export default class NavHeader extends styilist(HTMLElement) {
     return Array.from(this.root.querySelectorAll(`nav li`))
   }
 
-  static get observedAttributes() {
-    return [
-      'ciao'
-    ]
-  }
-
   connectedCallback() {
     const { hash } = location
     this.selectTab(hash)
     window.addEventListener('hashchange', this.handleHashChange)
-  }
-
-  attributeChangedCallback(name, old, nue) {
-    console.log(name, old, nue)
   }
 
   handleHashChange(e) {

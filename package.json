@@ -8,7 +8,7 @@
     "start": "node index.js",
     "test": "xo",
     "deploy": "now",
-    "post-deploy": "now alias `pbpaste` meesayen"
+    "postdeploy": "now alias `pbpaste` meesayen"
   },
   "author": "Meesayen <gvg.fede@gmail.com>",
   "license": "MIT",
@@ -17,14 +17,11 @@
   },
   "xo": {
     "extends": "paprika",
-    "envs": ["node", "browser"],
     "rules": {
-      "import/extensions": "off",
+      "capIsNew": "off",
+      "new-cap": "off",
       "import/no-unassigned-import": "off"
-    },
-    "ignores": [
-      "src/hyperHtml.js"
-    ]
+    }
   },
   "dependencies": {
     "async-file": "^2.0.2",
@@ -37,6 +34,7 @@
   "devDependencies": {
     "eslint-config-paprika": "^0.1.0",
     "nodemon": "^1.11.0",
+    "uglify-es": "^3.0.3",
     "xo": "^0.18.2"
   }
 }

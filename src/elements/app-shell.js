@@ -1,28 +1,21 @@
-import { attachShadow, registerElement } from '../utils.js'
+import Stylist from '../vanilla/stylist-mixin.js'
+import { registerElement, mix } from '../utils.js'
 import './hero-banner.js'
 import './nav-header.js'
 
-const style = /* @css */`
-  :host {
-    --color: red;
+export default class AppShell extends mix(HTMLElement).with([Stylist]) {
+  get style() {
+    return fetch('elements/app-shell.css').then(r => r.text())
   }
 
-  div {
-    color: var(--color);
-  }
-`
-
-export default class AppShell extends HTMLElement {
-  constructor() {
-    super()
-
-    attachShadow(this, /* @html */`
-      <style>${style}</style>
-
+  get template() {
+    return /* @html */`
       <nav-header></nav-header>
 
       <hero-banner title="Work in progress..."></hero-banner>
-    `)
+
+      <footer></footer>
+    `
   }
 }
 

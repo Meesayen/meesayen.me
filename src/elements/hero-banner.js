@@ -1,9 +1,13 @@
 import { registerElement } from '../utils.js'
-import stylist from '../stylist-mixin.js'
-import spy from '../spy-mixin.js'
-import marshall from '../marshall-mixin.js'
+import Vanilla from '../vanilla/vanilla.js'
 
-export default class HeroBanner extends marshall(spy(stylist(HTMLElement))) {
+export default class HeroBanner extends Vanilla(HTMLElement) {
+  constructor() {
+    super()
+    this.classes = 'cls1 cls2 cls3'
+    this.other = 'ciao'
+  }
+
   static get observedAttributes() {
     return [
       'title'
@@ -15,17 +19,41 @@ export default class HeroBanner extends marshall(spy(stylist(HTMLElement))) {
   }
 
   get template() {
-    return /* @html */`
-      <div>
-        <h1 id="title">
-          ${this.title}
+    return /* @vue */`
+      <style unresolved>
+        :host {
+          display: block;
+          width: 100%;
+          height: 70vh;
+          background: var(--c-chiaro);
+
+        }
+        :host * { @apply --cloaked; }
+      </style>
+
+      <div @click="clickme()">
+        <h1 id="title" :class="classes">
+          compound [{{title}}] interpolation [{{title}}] magic [{{other}}]
+          <span></span>
+          [{{title}}]
         </h1>
       </div>
     `
   }
 
+  clickme(title) {
+    console.log('ciaooooo', title)
+    if (this.classes === 'no class') {
+      this.classes = 'eeee classes'
+      this.other = 'kazaam! ⚡️'
+    } else {
+      this.classes = 'no class'
+      this.other = 'presto! 🌟'
+    }
+  }
+
   titleChanged(old, nue) {
-    this.$.title.textContent = nue
+    this.title = nue
   }
 }
 
