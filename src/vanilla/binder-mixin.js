@@ -1,5 +1,8 @@
 import { genUID } from '../utils.js'
 
+// NOTE: Lot of things thrown at a wall. I will have to clean this mess up and make it performant.
+// Very much borrowed from VueJS templating syntax, which I love. ❤️
+
 const interpolationRE = /(\{\{\s*[a-zA-Z_][a-zA-Z_\d]*\s*\}\})/
 const analyzeInterpolations = root => {
   const mappings = Array.from(root.querySelectorAll('*'))
@@ -72,6 +75,7 @@ export default superclass => class extends superclass {
 
   [addListenerSymbol](id, el, attrName, attrValue) {
     let listener
+    // FIXME: Very sloppy check - should use a regex and check if there's at least 1 param
     if (attrValue.endsWith(')')) {
       // event listener with custom inputs. i.e. "clickMe(a, b, c)"
       const parts = attrValue.slice(0, -1).split('(')

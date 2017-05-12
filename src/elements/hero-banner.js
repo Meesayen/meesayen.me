@@ -1,11 +1,11 @@
-import { registerElement } from '../utils.js'
+import { fetchText, registerElement } from '../utils.js'
 import Vanilla from '../vanilla/vanilla.js'
 
 export default class HeroBanner extends Vanilla(HTMLElement) {
   constructor() {
     super()
-    this.classes = 'cls1 cls2 cls3'
-    this.other = 'ciao'
+    this.classes = ''
+    this.magicWord = '...'
   }
 
   static get observedAttributes() {
@@ -15,7 +15,7 @@ export default class HeroBanner extends Vanilla(HTMLElement) {
   }
 
   get style() {
-    return fetch('elements/hero-banner.css').then(r => r.text())
+    return fetchText('elements/hero-banner.css')
   }
 
   get template() {
@@ -31,24 +31,26 @@ export default class HeroBanner extends Vanilla(HTMLElement) {
         :host * { @apply --cloaked; }
       </style>
 
-      <div @click="clickme()">
+      <div @click="clickme">
         <h1 id="title" :class="classes">
-          compound [{{title}}] interpolation [{{title}}] magic [{{other}}]
-          <span></span>
-          [{{title}}]
+          {{title}}
         </h1>
+
+        <br />
+        <label>Compound interpolation:</label>
+        <br />
+        Click anywhere around and{{magicWord}}
       </div>
     `
   }
 
-  clickme(title) {
-    console.log('ciaooooo', title)
-    if (this.classes === 'no class') {
-      this.classes = 'eeee classes'
-      this.other = 'kazaam! ⚡️'
+  clickme() {
+    if (this.classes === 'be-orange') {
+      this.classes = 'be-purple'
+      this.magicWord = ' kazaam! ⚡️'
     } else {
-      this.classes = 'no class'
-      this.other = 'presto! 🌟'
+      this.classes = 'be-orange'
+      this.magicWord = ' presto! 🌟'
     }
   }
 

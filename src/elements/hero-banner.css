@@ -5,9 +5,18 @@
 
 div {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   width: 100%;
   height: 70vh;
   background: var(--c-chiaro);
+}
+
+.be-orange {
+  color: orange;
+}
+
+.be-purple {
+  color: rebeccapurple;
 }

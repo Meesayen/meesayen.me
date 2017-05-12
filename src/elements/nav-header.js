@@ -1,4 +1,4 @@
-import { registerElement } from '../utils.js'
+import { fetchText, registerElement } from '../utils.js'
 import Styilist from '../vanilla/stylist-mixin.js'
 
 export default class NavHeader extends Styilist(HTMLElement) {
@@ -9,11 +9,11 @@ export default class NavHeader extends Styilist(HTMLElement) {
   }
 
   get style() {
-    return fetch('elements/nav-header.css').then(r => r.text())
+    return fetchText('elements/nav-header.css')
   }
 
   get template() {
-    return /* @html */`
+    return /* @vue */`
       <!--
         NOTE: pre-style your component before the .css is fetched and injected with an [unresolved]
         <style> tag. Useful to avoid FOUC situations.
@@ -33,6 +33,7 @@ export default class NavHeader extends Styilist(HTMLElement) {
         <a href="#home">Meesayen's</a>
       </div>
 
+      <!-- TODO: Create directives for common stuff like repeat and show/hide -->
       <nav>
         <ul>
           <li>

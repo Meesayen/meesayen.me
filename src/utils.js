@@ -1,18 +1,26 @@
 export const lispCasify = str => str.replace(/([A-Z])/g, (str, m) => `-${m.toLowerCase()}`).slice(1)
+export const camelCasify = str => str.replace(/-([a-z])?/g, (str, m) => (m || '').toUpperCase())
 
+export const fetchText = resource => fetch(resource).then(r => r.text())
+export const fetchJson = resource => fetch(resource).then(r => r.json())
+
+// A bit of laziness from my part
 export const attachShadow = (ctx, str) => {
   const shadow = ctx.attachShadow({ mode: 'open' })
   shadow.innerHTML = str
   return shadow
 }
 
+// I am _this_ lazy 😅
 export const registerElement = ElementClass => {
+  // Oh yeah, it breaks with anonymous classes.
+  // Oh and with class names that turn out to be non lisp-case after being lispCasified. Oh well...
   const name = lispCasify(ElementClass.name)
   customElements.define(name, ElementClass)
 }
 
-export const camelcasify = str => str.replace(/-([a-z])?/g, (str, m) => (m || '').toUpperCase())
-
+// Stupid simple UID generator - Uses a Set() to avoid collisions
+// TODO: Change it to generator function
 const UIDList = new Set()
 const seed = 'abcdefghijklmnopqrstvwxyz1234567890'
 let prevUIDListSize = UIDList.size
@@ -31,9 +39,10 @@ export const genUID = () => {
   return newUID
 }
 
-export const mix = baseClass => {
+// Extremily simple "mixer"
+export const mix = (baseClass = class {}) => {
   return {
-    with(mixins) {
+    with(...mixins) {
       return mixins.reduce((acc, m) => m(acc), baseClass)
     }
   }

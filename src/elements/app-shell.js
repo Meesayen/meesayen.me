@@ -1,15 +1,17 @@
+import { fetchText, registerElement } from '../utils.js'
 import Stylist from '../vanilla/stylist-mixin.js'
-import { registerElement, mix } from '../utils.js'
+
+// Not liking this part very much. Feels so magical.
 import './hero-banner.js'
 import './nav-header.js'
 
-export default class AppShell extends mix(HTMLElement).with([Stylist]) {
+export default class AppShell extends Stylist(HTMLElement) {
   get style() {
-    return fetch('elements/app-shell.css').then(r => r.text())
+    return fetchText('elements/app-shell.css')
   }
 
   get template() {
-    return /* @html */`
+    return /* @vue */`
       <nav-header></nav-header>
 
       <hero-banner title="Work in progress..."></hero-banner>

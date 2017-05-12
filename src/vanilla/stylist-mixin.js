@@ -4,6 +4,7 @@ export default superclass => class extends superclass {
   constructor(...args) {
     super(...args)
 
+    // Maybe I should make this a getter instead.
     this.root = attachShadow(this, this.template)
 
     ;(async () => {

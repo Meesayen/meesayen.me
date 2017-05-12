@@ -10,11 +10,11 @@ const router = new Router()
 const port = process.env.PORT || 3000
 
 // TODO: add a build pipeline to support more browsers
-// if (process.env.NODE_ENV === 'production') {
-//   app.use(serve(`${__dirname}/dist`))
-// } else {
-app.use(serve(`${__dirname}/src`))
-// }
+if (process.env.NODE_ENV === 'development') {
+  app.use(serve(`${__dirname}/src`))
+} else {
+  app.use(serve(`${__dirname}/dist`))
+}
 
 app.use(favicon(`${__dirname}/favicon.ico`))
 
@@ -22,10 +22,6 @@ app.use(favicon(`${__dirname}/favicon.ico`))
   const index = await fs.readFile(`${__dirname}/index.html`, 'utf-8')
 
   router.get('/', ctx => {
-    ctx.body = index
-  })
-
-  router.get('/test', ctx => {
     ctx.body = index
   })
 

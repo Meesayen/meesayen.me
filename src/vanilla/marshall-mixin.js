@@ -1,3 +1,4 @@
+// Another thing I really like from Polymer.
 export default superclass => class extends superclass {
   constructor(...args) {
     super(...args)
