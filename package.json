@@ -8,13 +8,18 @@
     "build": "node build.js",
     "start": "node index.js",
     "test": "xo",
-    "deploy": "now",
-    "postdeploy": "now alias `pbpaste` meesayen"
+    "deploy": "now && now alias"
   },
   "author": "Meesayen <gvg.fede@gmail.com>",
   "license": "MIT",
   "engines": {
     "node": "^7.9.0"
+  },
+  "now": {
+    "alias": "meesayen",
+    "env": {
+      "NODE_ENV": "production"
+    }
   },
   "xo": {
     "extends": "paprika",
@@ -32,13 +37,13 @@
     "globby": "^6.1.0",
     "koa": "^2.2.0",
     "koa-favicon": "^2.0.0",
-    "koa-ip-filter": "^3.0.0",
     "koa-router": "^7.1.1",
     "koa-static": "^3.0.0"
   },
   "devDependencies": {
     "eslint-config-paprika": "^0.1.0",
     "nodemon": "^1.11.0",
+    "now": "^5.2.3",
     "xo": "^0.18.2"
   }
 }

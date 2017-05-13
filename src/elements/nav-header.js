@@ -29,27 +29,29 @@ export default class NavHeader extends Styilist(HTMLElement) {
         :host * { @apply --cloaked; }
       </style>
 
-      <div class="logo">
-        <a href="#home">Meesayen's</a>
-      </div>
+      <div class="wrap">
+        <div class="logo">
+          <a href="#home">Meesayen's</a>
+        </div>
 
-      <!-- TODO: Create directives for common stuff like repeat and show/hide -->
-      <nav>
-        <ul>
-          <li>
-            <a href="#home">home</a>
-          </li>
-          <li>
-            <a href="#works">works</a>
-          </li>
-          <li>
-            <a href="#blog">blog</a>
-          </li>
-          <li>
-            <a href="#about">about</a>
-          </li>
-        </ul>
-      </nav>
+        <!-- TODO: Create directives for common stuff like repeat and show/hide -->
+        <nav>
+          <ul>
+            <li>
+              <a href="#home">home</a>
+            </li>
+            <li>
+              <a href="#works">works</a>
+            </li>
+            <li>
+              <a href="#blog">blog</a>
+            </li>
+            <li>
+              <a href="#about">about</a>
+            </li>
+          </ul>
+        </nav>
+      </div>
     `
   }
 

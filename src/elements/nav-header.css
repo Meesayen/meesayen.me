@@ -1,15 +1,19 @@
 :host {
   position: relative;
-  display: flex;
-  flex-direction: row;
   font-family: monospace;
-  max-width: 1024px;
   width: 100%;
-  margin: 0 auto;
   z-index: 1;
   box-shadow:
     0px 15px 0 var(--c-primary-a7),
     0px 27px 0 var(--c-primary-a2);
+}
+
+.wrap {
+  display: flex;
+  flex-direction: row;
+  max-width: 1024px;
+  width: 100%;
+  margin: 0 auto;
 }
 
 * {
