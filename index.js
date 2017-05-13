@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 const Koa = require('koa')
 const fs = require('async-file')
 const serve = require('koa-static')
