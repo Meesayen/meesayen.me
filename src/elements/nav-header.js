@@ -1,4 +1,4 @@
-import { fetchText, registerElement } from '../utils.js'
+import { fetchPreloadedCss, registerElement } from '../utils.js'
 import Styilist from '../vanilla/stylist-mixin.js'
 
 export default class NavHeader extends Styilist(HTMLElement) {
@@ -9,7 +9,7 @@ export default class NavHeader extends Styilist(HTMLElement) {
   }
 
   get style() {
-    return fetchText('elements/nav-header.css')
+    return fetchPreloadedCss('/elements/nav-header.css')
   }
 
   get template() {

@@ -1,4 +1,4 @@
-import { fetchText, registerElement } from '../utils.js'
+import { fetchPreloadedCss, registerElement } from '../utils.js'
 import Vanilla from '../vanilla/vanilla.js'
 
 export default class HeroBanner extends Vanilla(HTMLElement) {
@@ -15,7 +15,7 @@ export default class HeroBanner extends Vanilla(HTMLElement) {
   }
 
   get style() {
-    return fetchText('elements/hero-banner.css')
+    return fetchPreloadedCss('/elements/hero-banner.css')
   }
 
   get template() {

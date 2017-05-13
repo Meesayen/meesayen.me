@@ -4,6 +4,19 @@ export const camelCasify = str => str.replace(/-([a-z])?/g, (str, m) => (m || ''
 export const fetchText = resource => fetch(resource).then(r => r.text())
 export const fetchJson = resource => fetch(resource).then(r => r.json())
 
+// FIXME: There is currently a bug with native 'fetch' - it triggers a new download of a resources
+// even if it was preloaded with <link rel="preload">
+export const fetchPreloadedCss = resource => {
+  return new Promise(resolve => {
+    const xhr = new XMLHttpRequest()
+    xhr.open('get', resource)
+    xhr.addEventListener('load', function () {
+      resolve(this.responseText)
+    })
+    xhr.send()
+  })
+}
+
 // A bit of laziness from my part
 export const attachShadow = (ctx, str) => {
   const shadow = ctx.attachShadow({ mode: 'open' })

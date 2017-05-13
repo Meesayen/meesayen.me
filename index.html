@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8">
     <title>Hi, Meesayen here</title>
@@ -8,10 +8,23 @@
 
     <link rel="stylesheet" href="/app.css">
 
-    <script type="module">
-      import app from './app.js'
+    <!-- NOTE:
+      Preloading without as="style" (i.e. XHR priority), because these CSS will be fetched
+      via XHR indeed.
+    -->
+    <link rel="preload" href="/elements/app-shell.css">
+    <link rel="preload" href="/elements/hero-banner.css">
+    <link rel="preload" href="/elements/nav-header.css">
 
-      app.run()
+    <!-- Preloading essential JS modules - Waiting for <link rel="preloadmodule"> -->
+    <script type="module">
+      import './elements/app-shell.js'
+      import './vanilla/vanilla.js'
+    </script>
+
+    <!-- NOTE: using src="app.js" would download the resource twice. No clue. Maybe Canary bug. -->
+    <script type="module">
+      import './app.js'
     </script>
   </head>
   <body>

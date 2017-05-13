@@ -1,4 +1,4 @@
-import { fetchText, registerElement } from '../utils.js'
+import { fetchPreloadedCss, registerElement } from '../utils.js'
 import Stylist from '../vanilla/stylist-mixin.js'
 
 // Not liking this part very much. Feels so magical.
@@ -7,7 +7,7 @@ import './nav-header.js'
 
 export default class AppShell extends Stylist(HTMLElement) {
   get style() {
-    return fetchText('elements/app-shell.css')
+    return fetchPreloadedCss('/elements/app-shell.css')
   }
 
   get template() {
