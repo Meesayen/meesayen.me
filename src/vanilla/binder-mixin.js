@@ -24,9 +24,8 @@ const analyzeInterpolations = root => {
 
       if (ins.length === 0) return null
 
-      // FIXME: Reuse existing id if found
-      const id = `vanilla-${genUID()}`
-      el.setAttribute(id, '')
+      const id = el.dataset.vanilla || genUID()
+      el.dataset.vanilla = id
       return {
         id,
         el,
@@ -49,8 +48,8 @@ const analyzeAttributes = root => {
 
       if (Object.keys(attrs).length === 0) return null
 
-      const id = `vanilla-${genUID()}`
-      el.setAttribute(id, '')
+      const id = el.dataset.vanilla || genUID()
+      el.dataset.vanilla = id
       return {
         id,
         el,
@@ -66,11 +65,19 @@ const addListenerSymbol = Symbol('addListener')
 const addBindingSymbol = Symbol('addBinding')
 const addInterpolationSymbol = Symbol('addInterpolation')
 const bindingListSymbol = Symbol('bindingsList')
+const observations = Symbol('observations')
+const observationInstaller = Symbol('observationInstaller')
+const changeHandler = Symbol('changeHandler')
 
 export default superclass => class extends superclass {
   constructor(...args) {
     super(...args)
     this[bindingListSymbol] = []
+    this[observations] = {}
+  }
+
+  [changeHandler](key, value) {
+    this[observations][key].forEach(handler => handler(value))
   }
 
   [addListenerSymbol](id, el, attrName, attrValue) {
@@ -98,65 +105,69 @@ export default superclass => class extends superclass {
     })
   }
 
-  [addBindingSymbol](id, el, attrName, attrValue) {
-    if (this[attrValue] === undefined) {
-      console.error(`Error: Trying to bind a property '${attrValue}' that's not defined.`)
+  [observationInstaller](prop) {
+    if (this[prop] === undefined) {
+      console.error(`Error: Trying to bind a property '${prop}' that's not defined.`)
       return null
     }
 
-    // getOwnPropertyDescriptor get/set | value (to keep possible getters/setters)
-    const shadowProp = Symbol(attrValue)
-    this[shadowProp] = this[attrValue]
-    this.root.querySelector(`[${id}]`).setAttribute(attrName.slice(1), this[attrValue])
-    Object.defineProperty(this, attrValue, {
-      get() {
-        return this[shadowProp]
-      },
-      set(newValue) {
-        this[shadowProp] = newValue
-        this.root.querySelector(`[${id}]`).setAttribute(attrName.slice(1), newValue)
-      },
-      enumerable: true,
-      configurable: true
-    })
-  }
-
-  // FIXME: aggregate equal props mutations listeners
-  [addInterpolationSymbol](id, el, idx, props, tpl) {
-    const interpolatorSymbol = Symbol(tpl)
-    // eslint-disable-next-line no-new-func
-    this[interpolatorSymbol] = Function(`return \`${tpl}\``)
-
-    el.childNodes[idx].textContent = this[interpolatorSymbol]()
-
-    props.forEach(p => {
-      if (this[p] === undefined) {
-        console.error(`Error: Trying to bind a property '${p}' that's not defined.`)
-        return null
-      }
-
-      const shadowProp = Symbol(`${p}${idx}`)
-      const desc = Object.getOwnPropertyDescriptor(this, p)
-      if (desc === undefined || desc.value) {
-        this[shadowProp] = { value: desc === undefined ? this[p] : desc.value }
+    if (this[observations][prop] === undefined) {
+      this[observations][prop] = []
+      const shadowProp = Symbol(`${prop}`)
+      const desc = Object.getOwnPropertyDescriptor(this, prop)
+      let isPlainValue
+      if (desc === undefined || {}.hasOwnProperty.call(desc, 'value')) {
+        isPlainValue = true
+        this[shadowProp] = { value: desc === undefined ? this[prop] : desc.value }
       } else {
+        isPlainValue = false
         this[shadowProp] = { get: desc.get.bind(this), set: desc.set.bind(this) }
       }
 
-      Object.defineProperty(this, p, {
+      Object.defineProperty(this, prop, {
         get() {
-          return this[shadowProp].value || this[shadowProp].get()
+          return isPlainValue ? this[shadowProp].value : this[shadowProp].get()
         },
         set(newValue) {
-          if (this[shadowProp].value) {
+          // Check is shallow by design - immutability is a must
+          if (isPlainValue) {
+            if (this[shadowProp].value === newValue) return
             this[shadowProp].value = newValue
           } else {
+            if (this[shadowProp].get() === newValue) return
             this[shadowProp].set(newValue)
           }
-          this.root.querySelector(`[${id}]`).childNodes[idx].textContent = this[interpolatorSymbol]()
+          this[changeHandler](prop, newValue)
         },
         enumerable: true,
         configurable: true
+      })
+    }
+  }
+
+  [addBindingSymbol](id, el, attrName, attrValue) {
+    // TODO: Check if element exists. If not, something mutated the dom and the binding is broken
+    this.root.querySelector(`[data-vanilla="${id}"]`)
+        .setAttribute(attrName.slice(1), this[attrValue])
+
+    this[observationInstaller](attrValue)
+
+    this[observations][attrValue].push(value => {
+      this.root.querySelector(`[data-vanilla="${id}"]`).setAttribute(attrName.slice(1), value)
+    })
+  }
+
+  [addInterpolationSymbol](id, el, i, props, tpl) {
+    // eslint-disable-next-line no-new-func
+    const interpolator = Function(`return \`${tpl}\``).bind(this)
+
+    el.childNodes[i].textContent = interpolator()
+
+    props.forEach(prop => {
+      this[observationInstaller](prop)
+
+      this[observations][prop].push(() => {
+        this.root.querySelector(`[data-vanilla="${id}"]`).childNodes[i].textContent = interpolator()
       })
     })
   }
@@ -180,7 +191,8 @@ export default superclass => class extends superclass {
 
   disconnectedCallback() {
     this[bindingListSymbol].forEach(binding => {
-      this.root.querySelector(`[${binding.id}]`).removeEventListener(binding.event, binding.listener)
+      this.root.querySelector(`[data-vanilla="${binding.id}"]`)
+          .removeEventListener(binding.event, binding.listener)
     })
   }
 }

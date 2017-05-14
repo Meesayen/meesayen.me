@@ -5,7 +5,8 @@ export default class HeroBanner extends Vanilla(HTMLElement) {
   constructor() {
     super()
     this.classes = ''
-    this.magicWord = '...'
+    this.message = 'Click anywhere around and...'
+    this.magicWord = ''
   }
 
   static get observedAttributes() {
@@ -39,18 +40,19 @@ export default class HeroBanner extends Vanilla(HTMLElement) {
         <br />
         <label>Compound interpolation:</label>
         <br />
-        Click anywhere around and{{magicWord}}
+        {{message}} {{magicWord}}
       </div>
     `
   }
 
   clickme() {
+    this.message = 'Click anywhere around and'
     if (this.classes === 'be-orange') {
       this.classes = 'be-purple'
-      this.magicWord = ' kazaam! ⚡️'
+      this.magicWord = 'kazaam! ⚡️'
     } else {
       this.classes = 'be-orange'
-      this.magicWord = ' presto! 🌟'
+      this.magicWord = 'presto! 🌟'
     }
   }
 

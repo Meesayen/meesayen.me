@@ -61,20 +61,20 @@ export default class NavHeader extends Styilist(HTMLElement) {
 
   connectedCallback() {
     const { hash } = location
-    this.selectTab(hash)
+    this.selectTab(hash === '' ? undefined : hash)
     window.addEventListener('hashchange', this.handleHashChange)
   }
 
   handleHashChange(e) {
-    const hash = e.newURL.split('#').pop()
-    this.selectTab(`#${hash}`)
+    const [, hash] = e.newURL.split('#')
+    this.selectTab(hash)
   }
 
-  selectTab(hash) {
+  selectTab(hash = 'home') {
     this.tabs
       .filter(t => t.classList.contains('selected'))
       .forEach(t => t.classList.remove('selected'))
-    this.tabs.find(t => t.querySelector('a').hash === (hash || '#home')).classList.add('selected')
+    this.tabs.find(t => t.querySelector('a').hash === `#${hash}`).classList.add('selected')
   }
 }
 
