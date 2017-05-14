@@ -1,5 +1,5 @@
 // Another thing I really like from Polymer.
-export default superclass => class extends superclass {
+export default superclass => class MarshallMixin extends superclass {
   constructor(...args) {
     super(...args)
 

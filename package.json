@@ -26,6 +26,7 @@
     "rules": {
       "capIsNew": "off",
       "new-cap": "off",
+      "no-div-regex": "off",
       "import/no-unassigned-import": "off"
     }
   },

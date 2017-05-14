@@ -1,6 +1,6 @@
 import { camelCasify } from '../utils.js'
 
-export default superclass => class extends superclass {
+export default superclass => class SpyMixin extends superclass {
   // constructor(...args) {
   //   super(...args)
   // }

@@ -1,6 +1,6 @@
 import { attachShadow } from '../utils.js'
 
-export default superclass => class extends superclass {
+export default superclass => class StylistMixin extends superclass {
   constructor(...args) {
     super(...args)
 

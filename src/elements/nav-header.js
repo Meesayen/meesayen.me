@@ -1,10 +1,10 @@
 import { fetchPreloadedCss, registerElement } from '../utils.js'
-import Styilist from '../vanilla/stylist-mixin.js'
+import Vanilla from '../vanilla/vanilla.js'
 
-export default class NavHeader extends Styilist(HTMLElement) {
+export default class NavHeader extends Vanilla(HTMLElement) {
   constructor() {
     super()
-
+    this.selectedTab = 'home'
     this.handleHashChange = this.handleHashChange.bind(this)
   }
 
@@ -37,16 +37,16 @@ export default class NavHeader extends Styilist(HTMLElement) {
         <!-- TODO: Create directives for common stuff like repeat and show/hide -->
         <nav>
           <ul>
-            <li>
+            <li :class="{ 'selected': isSelectedTab(selectedTab, 'home') }">
               <a href="#home">home</a>
             </li>
-            <li>
+            <li :class="{ 'selected': isSelectedTab(selectedTab, 'works') }">
               <a href="#works">works</a>
             </li>
-            <li>
+            <li :class="{ 'selected': isSelectedTab(selectedTab, 'blog') }">
               <a href="#blog">blog</a>
             </li>
-            <li>
+            <li :class="{ 'selected': isSelectedTab(selectedTab, 'about') }">
               <a href="#about">about</a>
             </li>
           </ul>
@@ -55,14 +55,20 @@ export default class NavHeader extends Styilist(HTMLElement) {
     `
   }
 
-  get tabs() {
-    return Array.from(this.root.querySelectorAll(`nav li`))
+  isSelectedTab(a, b) {
+    return a === b
   }
 
   connectedCallback() {
-    const { hash } = location
-    this.selectTab(hash === '' ? undefined : hash)
+    super.connectedCallback()
+    const [, hash] = location.href.split('#')
+    this.selectTab(hash)
     window.addEventListener('hashchange', this.handleHashChange)
+  }
+
+  disconnectedCallback() {
+    super.connectedCallback()
+    window.removeEventListener('hashchange', this.handleHashChange)
   }
 
   handleHashChange(e) {
@@ -71,10 +77,7 @@ export default class NavHeader extends Styilist(HTMLElement) {
   }
 
   selectTab(hash = 'home') {
-    this.tabs
-      .filter(t => t.classList.contains('selected'))
-      .forEach(t => t.classList.remove('selected'))
-    this.tabs.find(t => t.querySelector('a').hash === `#${hash}`).classList.add('selected')
+    this.selectedTab = hash.startsWith('#') ? hash.slice(1) : hash
   }
 }
 

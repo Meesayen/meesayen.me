@@ -41,6 +41,7 @@ const analyzeAttributes = root => {
     .map(el => {
       const attrs = Array.from(el.attributes).reduce((acc, next) => {
         if (next.nodeName.startsWith(':') || next.nodeName.startsWith('@')) {
+          el.removeAttribute(next.nodeName)
           acc[next.nodeName] = next.nodeValue
         }
         return acc
@@ -57,27 +58,48 @@ const analyzeAttributes = root => {
       }
     })
     .filter(m => m !== null)
-
   return mappings
 }
 
-const addListenerSymbol = Symbol('addListener')
-const addBindingSymbol = Symbol('addBinding')
-const addInterpolationSymbol = Symbol('addInterpolation')
-const bindingListSymbol = Symbol('bindingsList')
-const observations = Symbol('observations')
-const observationInstaller = Symbol('observationInstaller')
-const changeHandler = Symbol('changeHandler')
+// Stupid simple regex to match literal values (not 100% accurate, but will do for now)
+const literalRE = /^(?:\d+(?:\.\d+)?|true|false|undefuned|null|(['"]).*?\1)$/
+const functionRE = /(\w+)\((.*?)\)/
 
-export default superclass => class extends superclass {
+const addListenerSymbol = Symbol('BinderMixin.addListener')
+const addBindingSymbol = Symbol('BinderMixin.addBinding')
+const addInterpolationSymbol = Symbol('BinderMixin.addInterpolation')
+const bindingListSymbol = Symbol('BinderMixin.bindingsList')
+const observations = Symbol('BinderMixin.observations')
+const observationInstaller = Symbol('BinderMixin.observationInstaller')
+const changeHandler = Symbol('BinderMixin.changeHandler')
+const toggleClass = Symbol('BinderMixin.toggleClass')
+const getElement = Symbol('BinderMixin.getElement')
+const elementsCache = Symbol('BinderMixin.elementsCache')
+
+// TODO: Add check to guarantee that an overridden lifecycle method calls the super.<method-name>()
+export default superclass => class BinderMixin extends superclass {
   constructor(...args) {
     super(...args)
     this[bindingListSymbol] = []
     this[observations] = {}
+    this[elementsCache] = new Map()
   }
 
-  [changeHandler](key, value) {
-    this[observations][key].forEach(handler => handler(value))
+  [getElement](id) {
+    if (!this[elementsCache].has(id)) {
+      this[elementsCache].set(id, this.root.querySelector(`[data-vanilla="${id}"]`))
+    }
+    return this[elementsCache].get(id)
+  }
+
+  [changeHandler](key, oldValue, newValue) {
+    this[observations][key].forEach(handler => handler(oldValue, newValue))
+  }
+
+  [toggleClass](id, cls, bool = true) {
+    // No empty strings (or other falsy values) allowed
+    if (!cls) return
+    this[getElement](id).classList.toggle(cls.replace(/['"`]/g, ''), bool)
   }
 
   [addListenerSymbol](id, el, attrName, attrValue) {
@@ -113,7 +135,7 @@ export default superclass => class extends superclass {
 
     if (this[observations][prop] === undefined) {
       this[observations][prop] = []
-      const shadowProp = Symbol(`${prop}`)
+      const shadowProp = Symbol(`BinderMixin.${prop}`)
       const desc = Object.getOwnPropertyDescriptor(this, prop)
       let isPlainValue
       if (desc === undefined || {}.hasOwnProperty.call(desc, 'value')) {
@@ -129,15 +151,18 @@ export default superclass => class extends superclass {
           return isPlainValue ? this[shadowProp].value : this[shadowProp].get()
         },
         set(newValue) {
+          let oldValue
           // Check is shallow by design - immutability is a must
           if (isPlainValue) {
-            if (this[shadowProp].value === newValue) return
+            oldValue = this[shadowProp].value
+            if (oldValue === newValue) return
             this[shadowProp].value = newValue
           } else {
-            if (this[shadowProp].get() === newValue) return
+            oldValue = this[shadowProp].get()
+            if (oldValue === newValue) return
             this[shadowProp].set(newValue)
           }
-          this[changeHandler](prop, newValue)
+          this[changeHandler](prop, oldValue, newValue)
         },
         enumerable: true,
         configurable: true
@@ -146,14 +171,99 @@ export default superclass => class extends superclass {
   }
 
   [addBindingSymbol](id, el, attrName, attrValue) {
+    // NOTE: class bindings have different treatments
+    if (attrName === ':class') {
+      // Sloppy check for { 'cls': eval } notation
+      if (attrValue.startsWith('{')) {
+        const trimmed = attrValue.replace(/\s+|[{}]/g, '')
+        const pairs = trimmed.split('|').map(pair => pair.split(':'))
+
+        pairs.forEach(([cls, condition]) => {
+          switch (true) {
+          case literalRE.test(condition):
+            // console.log('literal:', cls, condition)
+            // If it's a literal value, just eval it now and be done with it
+            this[toggleClass](id, cls, Boolean(condition))
+            break
+          case /===?/.test(condition):
+            // console.log('equality check:', cls, condition)
+            // If contains double/triple equals assume it is a strict equality check always
+            // TODO: This is the most complex, coming back to it later
+            console.warn(`This syntax \`{ ${cls}: ${condition} }\` is not supported yet.`)
+            break
+          case functionRE.test(condition): {
+            const [, methodName, paramsString] = condition.match(functionRE)
+            const params = paramsString.split(',').map(p => {
+              if (literalRE.test(p)) return { isLiteral: true, value: p.replace(/['"]/g, '') }
+
+              return { isLiteral: false, value: p }
+            })
+            // console.log('function call:', cls, methodName, params)
+            // TODO: Should I put a check to avoid infinite loops? (if the method being called would
+            // mutate the property that is being watched to trigger the very same method)
+            // TODO: Check if methodName exists on instance
+            const changeHandler = () => {
+              const bool = this[methodName](...params.map(p => p.isLiteral ?
+                  p.value :
+                  this[p.value])
+              )
+              this[toggleClass](id, cls, bool)
+            }
+
+            changeHandler()
+
+            // NOTE: changes are only triggered on defined function parameters
+            // If an unknown property is used inside the listed method, and it changes, it won't
+            // retrigger the change handler.
+            // Therefore functions used in a :class context should always be pure functions
+            params.forEach(param => {
+              if (param.isLiteral === true) return
+              this[observationInstaller](param.value)
+              this[observations][param.value].push(changeHandler)
+            })
+            break
+          }
+          // I really don't like this part, but if you add a `this.title` to a custom element
+          // instance, for example, they won't have `title` has an owned property, because it is a
+          // property of its parent HTMLElement. Therefore I must use the `in` operator for now.
+          case condition in this: {
+            // console.log('property binding:', cls, condition)
+            const changeHandler = (old, nue) => {
+              this[toggleClass](id, cls, Boolean(nue))
+            }
+
+            changeHandler(null, this[condition])
+
+            this[observationInstaller](condition)
+            this[observations][condition].push(changeHandler)
+            break
+          }
+          default:
+            console.warn(`Oops. Either this property \`${condition}\` does not exist or`)
+            console.warn(`this syntax \`{ ${cls}: ${condition} }\` is not supported yet.`)
+          }
+        })
+      } else {
+        // Simple :class="property" case - no other fancy syntax would be supported at first
+        this[toggleClass](id, this[attrValue])
+
+        this[observationInstaller](attrValue)
+
+        this[observations][attrValue].push((old, nue) => {
+          this[toggleClass](id, old, false)
+          this[toggleClass](id, nue, true)
+        })
+      }
+      return
+    }
+
     // TODO: Check if element exists. If not, something mutated the dom and the binding is broken
-    this.root.querySelector(`[data-vanilla="${id}"]`)
-        .setAttribute(attrName.slice(1), this[attrValue])
+    el.setAttribute(attrName.slice(1), this[attrValue])
 
     this[observationInstaller](attrValue)
 
-    this[observations][attrValue].push(value => {
-      this.root.querySelector(`[data-vanilla="${id}"]`).setAttribute(attrName.slice(1), value)
+    this[observations][attrValue].push((old, nue) => {
+      this[getElement](id).setAttribute(attrName.slice(1), nue)
     })
   }
 
@@ -167,7 +277,7 @@ export default superclass => class extends superclass {
       this[observationInstaller](prop)
 
       this[observations][prop].push(() => {
-        this.root.querySelector(`[data-vanilla="${id}"]`).childNodes[i].textContent = interpolator()
+        this[getElement](id).childNodes[i].textContent = interpolator()
       })
     })
   }
@@ -190,9 +300,9 @@ export default superclass => class extends superclass {
   }
 
   disconnectedCallback() {
+    console.log('%cBurn everything! 🔥', 'color: red')
     this[bindingListSymbol].forEach(binding => {
-      this.root.querySelector(`[data-vanilla="${binding.id}"]`)
-          .removeEventListener(binding.event, binding.listener)
+      this[getElement](binding.id).removeEventListener(binding.event, binding.listener)
     })
   }
 }

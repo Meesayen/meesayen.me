@@ -2,12 +2,10 @@
 
 > My lovely assistant ❤️
 
-<!-- TODO: put an image here
 <h1 align="center">
 	<br>
-	<img width="400" src="">
+	<img width="400" src="https://cdn.rawgit.com/Meesayen/meesayen.me/5343ae57/leah/faces/celebrate.png">
 	<br>
 	<br>
 	<br>
 </h1>
- -->
