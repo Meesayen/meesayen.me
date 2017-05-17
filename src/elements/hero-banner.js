@@ -1,17 +1,17 @@
 import { fetchPreloadedCss, registerElement } from '../utils.js'
 import Vanilla from '../vanilla/vanilla.js'
 
+import './banners/out-there.js'
+
 export default class HeroBanner extends Vanilla(HTMLElement) {
   constructor() {
     super()
-    this.classes = ''
-    this.message = 'Click anywhere around and...'
-    this.magicWord = ''
+    this.outThereState = 'on'
   }
 
   static get observedAttributes() {
     return [
-      'title'
+      'message'
     ]
   }
 
@@ -32,32 +32,24 @@ export default class HeroBanner extends Vanilla(HTMLElement) {
         :host * { @apply --cloaked; }
       </style>
 
-      <div @click="clickme">
-        <h1 id="title" :class="classes">
-          {{title}}
-        </h1>
+      <div class="wrap">
+        <out-there :state="outThereState" @click="changeState()"></out-there>
 
-        <br />
-        <label>Compound interpolation:</label>
-        <br />
-        {{message}} {{magicWord}}
+        <div class="overlay">
+          <h1>
+            {{message}}
+          </h1>
+        </div>
       </div>
     `
   }
 
-  clickme() {
-    this.message = 'Click anywhere around and'
-    if (this.classes === 'be-orange') {
-      this.classes = 'be-purple'
-      this.magicWord = 'kazaam! ⚡️'
-    } else {
-      this.classes = 'be-orange'
-      this.magicWord = 'presto! 🌟'
-    }
+  changeState() {
+    this.outThereState = this.outThereState === 'on' ? 'off' : 'on'
   }
 
-  titleChanged(old, nue) {
-    this.title = nue
+  messageChanged(old, nue) {
+    this.message = nue
   }
 }
 

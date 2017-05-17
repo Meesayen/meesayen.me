@@ -12,6 +12,13 @@
     opacity: 0;
   };
 
+  --credits: {
+    position: absolute;
+    right: 20px;
+    bottom: 40px;
+    color: rgba(255, 245, 156, 0.77);
+  };
+
   --reset-list: {
     padding: 0;
     margin: 0;

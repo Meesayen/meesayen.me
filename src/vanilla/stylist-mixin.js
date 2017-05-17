@@ -16,6 +16,11 @@ export default superclass => class StylistMixin extends superclass {
         style.removeAttribute('unresolved')
       }
       style.textContent = await this.style
+
+      // Useful hook to do computation after the injection of the asynchronously fetched style
+      if (typeof this.ready === 'function') {
+        this.ready()
+      }
     })()
   }
 

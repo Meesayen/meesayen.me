@@ -14,7 +14,7 @@ export default class AppShell extends Stylist(HTMLElement) {
     return /* @vue */`
       <nav-header></nav-header>
 
-      <hero-banner title="Work in progress..."></hero-banner>
+      <hero-banner message="Work in progress..."></hero-banner>
 
       <footer></footer>
     `
