@@ -1,9 +1,11 @@
+/* @flow */
+
 import { fetchPreloadedCss, registerElement } from '../../utils.js'
 import Vanilla from '../../vanilla/vanilla.js'
 
-import { SmallStar, MediumStar, BigStar, HugeStar } from './stars.js'
+import { Star, SmallStar, MediumStar, BigStar, HugeStar } from './stars.js'
 
-function rand(n) {
+function rand(n: number) {
   return Math.floor(Math.random() * n)
 }
 
@@ -14,39 +16,38 @@ export default class OutThere extends Vanilla(HTMLElement) {
     ]
   }
 
-  get style() {
-    return fetchPreloadedCss('/elements/banners/out-there.css')
-  }
+  static style = fetchPreloadedCss('/elements/banners/out-there.css')
 
-  get template() {
-    return /* @vue */`
-      <style unresolved>
-        :host {
-          position: absolute;
-          width: 100vw;
-          height: 75vh;
-          background: black;
+  static template = /* @vue */`
+    <style unresolved>
+      :host {
+        position: absolute;
+        width: 100vw;
+        height: 75vh;
+        background: black;
 
-        }
-        :host * { @apply --cloaked; }
-      </style>
+      }
+      :host * { @apply --cloaked; }
+    </style>
 
-      <div class="wrap">
-        <canvas id="stars" @mousemove="handleMouseMove"></canvas>
+    <div class="wrap">
+      <canvas id="stars" @mousemove="handleMouseMove"></canvas>
 
-        <div class="credit">
-          <em>Out There</em>
-          <small>by Meesayen</small>
-        </div>
+      <div class="credit">
+        <em>Out There</em>
+        <small>by Meesayen</small>
       </div>
-    `
-  }
+    </div>
+  `
+
+  state: string
+  stars: Star[]
+  ctx: CanvasRenderingContext2D
 
   constructor() {
     super()
     this.state = 'on'
     this.stars = []
-    this.ctx = null
   }
 
   ready() {
@@ -58,7 +59,7 @@ export default class OutThere extends Vanilla(HTMLElement) {
     this.startRender(this.ctx)
   }
 
-  startRender(ctx) {
+  startRender(ctx: CanvasRenderingContext2D) {
     this.continueRendering = true
     let wait = false
     const goRender = () => requestAnimationFrame(() => {
@@ -78,7 +79,7 @@ export default class OutThere extends Vanilla(HTMLElement) {
     this.continueRendering = false
   }
 
-  createStarrySky(w, h) {
+  createStarrySky(w: number, h: number) {
     // eslint-disable-next-line no-unused-vars
     for (const i of [...Array((w - h) * 2)]) {
       const sizePick = Math.random() * 1000
@@ -97,17 +98,18 @@ export default class OutThere extends Vanilla(HTMLElement) {
     }
   }
 
-  renderStarrySky(ctx) {
+  renderStarrySky(ctx: CanvasRenderingContext2D) {
+    ctx.clearRect(0, 0, this.$.stars.width, this.$.stars.height)
     for (const star of this.stars) {
       star.render(ctx)
     }
   }
 
-  handleMouseMove(e) {
+  handleMouseMove(e: MouseEvent) {
     console.log(e)
   }
 
-  stateChanged(old, nue) {
+  stateChanged(old: string, nue: string) {
     if (nue === 'off') {
       this.state = 'off'
       this.stopRender()

@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "leah start --dev",
+    "dev": "leah build --dev & leah start --dev",
     "build": "leah build",
     "start": "leah start",
     "test": "xo",
@@ -22,6 +22,7 @@
     }
   },
   "xo": {
+    "parser": "babel-eslint",
     "extends": "paprika",
     "rules": {
       "capIsNew": "off",
@@ -39,7 +40,9 @@
     "leah": "alpha"
   },
   "devDependencies": {
+    "babel-eslint": "^7.2.3",
     "eslint-config-paprika": "^1.0.0",
+    "flow-bin": "^0.46.0",
     "now": "^5.2.3",
     "xo": "^0.18.2"
   }

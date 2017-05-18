@@ -1,3 +1,5 @@
+/* @flow */
+
 function getColor(hex, lum = 0) {
   // convert to decimal and change luminosity
   let rgb = '#'
@@ -11,8 +13,24 @@ function getColor(hex, lum = 0) {
   return rgb
 }
 
-class Star {
-  constructor(x, y, z) {
+export class Star {
+  x: number
+  y: number
+  z: number
+  primaryColor: string
+  secondaryColor: string
+  tertiaryColor: string
+  base: number[]
+  left: number[]
+  right: number[]
+  up: number[]
+  down: number[]
+  leftTail: number[]
+  rightTail: number[]
+  upTail: number[]
+  downTail: number[]
+
+  constructor(x: number, y: number, z: number) {
     this.x = x
     this.y = y
     this.z = z
@@ -23,11 +41,13 @@ class Star {
   doTheMath() {}
 
   // Override me
-  render() {}
+  render(ctx: CanvasRenderingContext2D, shade?: number) {
+    console.log(shade)
+  }
 }
 
 export class SmallStar extends Star {
-  constructor(...args) {
+  constructor(...args: number[]) {
     super(...args)
     this.primaryColor = 'ffffff'
   }
@@ -36,7 +56,7 @@ export class SmallStar extends Star {
 
   }
 
-  render(ctx) {
+  render(ctx: CanvasRenderingContext2D) {
     const shade = -Math.min(0.6, Math.random())
     ctx.beginPath()
     ctx.fillStyle = getColor(this.primaryColor, shade)
@@ -47,7 +67,7 @@ export class SmallStar extends Star {
 }
 
 export class MediumStar extends Star {
-  constructor(...args) {
+  constructor(...args: number[]) {
     super(...args)
     this.primaryColor = 'ffffff'
     this.secondaryColor = '656565'
@@ -62,7 +82,7 @@ export class MediumStar extends Star {
     this.down = [this.x, this.y + 1, 1, 1]
   }
 
-  render(ctx) {
+  render(ctx: CanvasRenderingContext2D) {
     const shade = -Math.min(0.2, Math.random())
     ctx.beginPath()
     ctx.fillStyle = getColor(this.primaryColor, shade)
@@ -82,7 +102,7 @@ export class MediumStar extends Star {
 }
 
 export class BigStar extends Star {
-  constructor(...args) {
+  constructor(...args: number[]) {
     super(...args)
     this.primaryColor = 'ffffff'
     this.secondaryColor = '656565'
@@ -97,7 +117,7 @@ export class BigStar extends Star {
     this.down = [this.x, this.y + 2, 2, 2]
   }
 
-  render(ctx) {
+  render(ctx: CanvasRenderingContext2D) {
     const shade = -Math.min(0.3, Math.random())
     ctx.beginPath()
     ctx.fillStyle = getColor(this.primaryColor, shade)
@@ -117,7 +137,7 @@ export class BigStar extends Star {
 }
 
 export class HugeStar extends Star {
-  constructor(...args) {
+  constructor(...args: number[]) {
     super(...args)
     this.primaryColor = 'ffffff'
     this.secondaryColor = '888888'
@@ -138,7 +158,7 @@ export class HugeStar extends Star {
     this.downTail = [this.x + 2, this.y + 7, 1, 3]
   }
 
-  renderTail(ctx, shade) {
+  renderTail(ctx: CanvasRenderingContext2D, shade?: number) {
     ctx.beginPath()
     ctx.fillStyle = getColor(this.tertiaryColor, shade)
     ctx.rect(...this.leftTail)
@@ -149,7 +169,7 @@ export class HugeStar extends Star {
     ctx.closePath()
   }
 
-  render(ctx) {
+  render(ctx: CanvasRenderingContext2D) {
     const shade = -Math.min(0.3, Math.random())
     ctx.beginPath()
     ctx.fillStyle = getColor(this.primaryColor, shade)

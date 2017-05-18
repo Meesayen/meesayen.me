@@ -11,12 +11,7 @@ const router = new Router()
 
 const port = process.env.PORT || 3000
 
-// TODO: add a build pipeline to support more browsers
-if (process.env.NODE_ENV === 'development') {
-  app.use(serve(`${__dirname}/src`))
-} else {
-  app.use(serve(`${__dirname}/dist`))
-}
+app.use(serve(`${__dirname}/dist`))
 
 app.use(favicon(`${__dirname}/favicon.ico`))
 

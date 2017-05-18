@@ -6,19 +6,15 @@ import './hero-banner.js'
 import './nav-header.js'
 
 export default class AppShell extends Stylist(HTMLElement) {
-  get style() {
-    return fetchPreloadedCss('/elements/app-shell.css')
-  }
+  static style = fetchPreloadedCss('/elements/app-shell.css')
 
-  get template() {
-    return /* @vue */`
-      <nav-header></nav-header>
+  static template = /* @vue */`
+    <nav-header></nav-header>
 
-      <hero-banner message="Work in progress..."></hero-banner>
+    <hero-banner message="Work in progress..."></hero-banner>
 
-      <footer></footer>
-    `
-  }
+    <footer></footer>
+  `
 }
 
 registerElement(AppShell)
