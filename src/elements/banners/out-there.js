@@ -3,7 +3,8 @@
 import { fetchPreloadedCss, registerElement } from '../../utils.js'
 import Vanilla from '../../vanilla/vanilla.js'
 
-import { Star, SmallStar, MediumStar, BigStar, HugeStar } from './stars.js'
+import { SmallStar, MediumStar, BigStar, HugeStar } from './stars.js'
+import type { Point } from './stars.js'
 
 function rand(n: number) {
   return Math.floor(Math.random() * n)
@@ -41,7 +42,8 @@ export default class OutThere extends Vanilla(HTMLElement) {
   `
 
   state: string
-  stars: Star[]
+  stars: SmallStar[]
+  center: Point
   ctx: CanvasRenderingContext2D
 
   constructor() {
@@ -55,33 +57,19 @@ export default class OutThere extends Vanilla(HTMLElement) {
     const { clientWidth: w, clientHeight: h } = this.$.stars
     this.$.stars.width = w * 2
     this.$.stars.height = h * 2
+    this.center = {
+      x: w,
+      y: h
+    }
     this.createStarrySky(w * 2, h * 2)
     this.startRender(this.ctx)
-  }
-
-  startRender(ctx: CanvasRenderingContext2D) {
-    this.continueRendering = true
-    let wait = false
-    const goRender = () => requestAnimationFrame(() => {
-      if (!wait) {
-        this.renderStarrySky(ctx)
-        wait = true
-        setTimeout(() => {
-          wait = false
-        }, 100)
-      }
-      if (this.continueRendering) goRender()
-    })
-    goRender()
-  }
-
-  stopRender() {
-    this.continueRendering = false
+    this.startUpdate()
   }
 
   createStarrySky(w: number, h: number) {
     // eslint-disable-next-line no-unused-vars
     for (const i of [...Array((w - h) * 2)]) {
+      // for (const i of [...Array(1)]) {
       const sizePick = Math.random() * 1000
       const x = rand(w)
       const y = rand(h)
@@ -105,6 +93,48 @@ export default class OutThere extends Vanilla(HTMLElement) {
     }
   }
 
+  startRender(ctx: CanvasRenderingContext2D) {
+    this.continueRendering = true
+    let wait = false
+    const goRender = () => requestAnimationFrame(() => {
+      if (!wait) {
+        this.renderStarrySky(ctx)
+        wait = true
+        setTimeout(() => {
+          wait = false
+        }, 100)
+      }
+      if (this.continueRendering) goRender()
+    })
+    goRender()
+  }
+
+  stopRender() {
+    this.continueRendering = false
+  }
+
+  startUpdate() {
+    this.continueUpdating = true
+    let wait = false
+    const update = () => requestAnimationFrame(() => {
+      if (!wait) {
+        for (const star of this.stars) {
+          star.move(this.center)
+        }
+        wait = true
+        setTimeout(() => {
+          wait = false
+        }, 100)
+      }
+      if (this.continueUpdating) update()
+    })
+    update()
+  }
+
+  stopUpdate() {
+    this.continueUpdating = false
+  }
+
   handleMouseMove(e: MouseEvent) {
     console.log(e)
   }
@@ -113,10 +143,12 @@ export default class OutThere extends Vanilla(HTMLElement) {
     if (nue === 'off') {
       this.state = 'off'
       this.stopRender()
+      this.stopUpdate()
     } else {
       this.state = 'on'
       if (!this.ctx) return
       this.startRender(this.ctx)
+      this.startUpdate()
     }
   }
 }

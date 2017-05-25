@@ -1,5 +1,21 @@
 /* @flow */
 
+export type Point = {|
+  x: number,
+  y: number,
+|}
+
+export interface Star {
+  x: number,
+  y: number,
+  z: ?number,
+  primaryColor: string,
+
+  doTheMath(): void,
+  move(center: Point): void,
+  render(ctx: CanvasRenderingContext2D, shade?: number): void,
+}
+
 function getColor(hex, lum = 0) {
   // convert to decimal and change luminosity
   let rgb = '#'
@@ -13,48 +29,23 @@ function getColor(hex, lum = 0) {
   return rgb
 }
 
-export class Star {
+// const RAD = 180 / Math.PI
+
+export class SmallStar implements Star {
   x: number
   y: number
-  z: number
-  primaryColor: string
-  secondaryColor: string
-  tertiaryColor: string
-  base: number[]
-  left: number[]
-  right: number[]
-  up: number[]
-  down: number[]
-  leftTail: number[]
-  rightTail: number[]
-  upTail: number[]
-  downTail: number[]
+  z: ?number
+  velocity: number = 2
+  primaryColor: string = 'ffffff'
 
-  constructor(x: number, y: number, z: number) {
+  constructor(x: number, y: number, z?: number) {
     this.x = x
     this.y = y
     this.z = z
     this.doTheMath()
   }
 
-  // Override me
   doTheMath() {}
-
-  // Override me
-  render(ctx: CanvasRenderingContext2D, shade?: number) {
-    console.log(shade)
-  }
-}
-
-export class SmallStar extends Star {
-  constructor(...args: number[]) {
-    super(...args)
-    this.primaryColor = 'ffffff'
-  }
-
-  doTheMath() {
-
-  }
 
   render(ctx: CanvasRenderingContext2D) {
     const shade = -Math.min(0.6, Math.random())
@@ -64,14 +55,24 @@ export class SmallStar extends Star {
     ctx.fill()
     ctx.closePath()
   }
+
+  move(center: Point) {
+    const rad = Math.atan2(center.x - this.x, center.y - this.y)
+    // console.log('before', this.x, this.y, this.theta * RAD)
+    this.x = this.x - (this.velocity * Math.sin(rad))
+    this.y = this.y - (this.velocity * Math.cos(rad))
+    // console.log('after', this.x, this.y)
+    this.doTheMath()
+  }
 }
 
-export class MediumStar extends Star {
-  constructor(...args: number[]) {
-    super(...args)
-    this.primaryColor = 'ffffff'
-    this.secondaryColor = '656565'
-  }
+export class MediumStar extends SmallStar {
+  secondaryColor = '656565'
+  base: number[]
+  left: number[]
+  right: number[]
+  up: number[]
+  down: number[]
 
   doTheMath() {
     this.base = [this.x, this.y, 1, 1]
@@ -101,12 +102,8 @@ export class MediumStar extends Star {
   }
 }
 
-export class BigStar extends Star {
-  constructor(...args: number[]) {
-    super(...args)
-    this.primaryColor = 'ffffff'
-    this.secondaryColor = '656565'
-  }
+export class BigStar extends MediumStar {
+  velocity = 5
 
   doTheMath() {
     this.base = [this.x, this.y, 2, 2]
@@ -136,13 +133,14 @@ export class BigStar extends Star {
   }
 }
 
-export class HugeStar extends Star {
-  constructor(...args: number[]) {
-    super(...args)
-    this.primaryColor = 'ffffff'
-    this.secondaryColor = '888888'
-    this.tertiaryColor = '555555'
-  }
+export class HugeStar extends MediumStar {
+  secondaryColor = '888888'
+  tertiaryColor = '555555'
+  leftTail: number[]
+  rightTail: number[]
+  upTail: number[]
+  downTail: number[]
+  velocity = 10
 
   doTheMath() {
     this.base = [this.x, this.y, 5, 5]

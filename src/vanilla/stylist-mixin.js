@@ -2,7 +2,7 @@ import { attachShadow } from '../utils.js'
 
 export default superclass => class StylistMixin extends superclass {
   static template = /* @html */`
-    <h1>Please override the 'static get template()'' method, and provide your own template</h1>
+    <h1>Please override the 'static get template()' method, and provide your own template</h1>
   `
 
   static style = null
